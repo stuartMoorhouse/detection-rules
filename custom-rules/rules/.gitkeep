@@ -1,0 +1,5 @@
+# Place your custom detection rules (.toml files) in this directory
+#
+# Example:
+#   custom-rules/rules/my_custom_rule.toml
+#   custom-rules/rules/tomcat_webshell_detection.toml
