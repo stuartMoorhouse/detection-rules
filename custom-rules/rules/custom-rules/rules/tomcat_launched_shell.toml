@@ -1,0 +1,48 @@
+[metadata]
+creation_date = "2025/11/11"
+integration = []
+maturity = "development"
+updated_date = "2025/11/11"
+
+[rule]
+actions = []
+author = ["468064154"]
+description = "A shell was launched by Tomcat, indicating a possible shellscript has been started on the host. "
+enabled = true
+exceptions_list = []
+false_positives = []
+from = "now-2m"
+interval = "1m"
+language = "esql"
+license = ""
+max_signals = 100
+name = "tomcat-launched-shell"
+references = []
+related_integrations = []
+required_fields = []
+risk_score = 21
+risk_score_mapping = []
+rule_id = "50052ec2-ae29-48b7-a897-4e349c9bb2d3"
+setup = ""
+severity = "low"
+severity_mapping = []
+tags = []
+threat = []
+to = "now"
+type = "esql"
+
+query = '''
+FROM logs-endpoint.events.* metadata _id, _version, _index
+| WHERE event.type == "start"
+  AND process.parent.name == "java"
+  AND process.parent.command_line LIKE "*tomcat*"
+  AND process.name IN ("bash", "sh", "dash", "zsh")
+  AND (MV_CONTAINS(process.args, "-c") OR MV_CONTAINS(process.args, "-i"))
+| KEEP @timestamp, host.name, process.name, process.command_line, process.parent.name, process.parent.command_line, user.name, process.pid, process.parent.pid, _id, _version, _index
+'''
+
+
+
+[rule.meta]
+kibana_siem_app_url = "https://elastic-security-demo-local-c4c0df.kb.us-east-1.aws.found.io/app/security"
+
