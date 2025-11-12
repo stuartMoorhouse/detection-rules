@@ -1,0 +1,55 @@
+[metadata]
+creation_date = "2025/11/12"
+integration = []
+maturity = "development"
+updated_date = "2025/11/12"
+
+[rule]
+actions = []
+author = ["468064154"]
+description = "A shell launched from Tomcat."
+enabled = true
+exceptions_list = []
+false_positives = []
+from = "now-2m"
+interval = "1m"
+language = "esql"
+license = ""
+max_signals = 100
+name = "potential shell from tomcat"
+references = []
+related_integrations = []
+required_fields = []
+risk_score = 73
+risk_score_mapping = []
+rule_id = "c9a62e9c-fd61-4f0f-82f8-8809c39bb8ec"
+setup = ""
+severity = "high"
+severity_mapping = []
+tags = []
+to = "now"
+type = "esql"
+
+query = '''
+FROM logs-endpoint.events.* metadata _id, _version, _index
+| WHERE event.type == "start"
+  AND process.parent.name == "java"
+  AND process.parent.command_line LIKE "*tomcat*"
+  AND process.name IN ("bash", "sh", "dash", "zsh")
+  AND (MV_CONTAINS(process.args, "-c") OR MV_CONTAINS(process.args, "-i"))
+| KEEP @timestamp, host.name, process.name, process.command_line, process.parent.name, process.parent.command_line, user.name, process.pid, process.parent.pid, _id, _version,_index
+'''
+
+
+[[rule.threat]]
+framework = "MITRE ATT&CK"
+technique = []
+
+[rule.threat.tactic]
+id = "TA0002"
+name = "Execution"
+reference = "https://attack.mitre.org/tactics/TA0002/"
+
+[rule.meta]
+kibana_siem_app_url = "https://elastic-security-demo-local-c4c0df.kb.us-east-1.aws.found.io/app/security"
+
